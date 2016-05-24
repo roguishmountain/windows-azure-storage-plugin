@@ -21,14 +21,14 @@ import com.microsoftopentechnologies.windowsazurestorage.beans.StorageAccountInf
 
 
 public class AzureBlobAction implements RunAction {
-	private final AbstractBuild build;
+	private final Run build;
 	private final String storageAccountName;
 	private final String containerName;
 	private final boolean allowAnonymousAccess;
 	private final AzureBlob zipArchiveBlob;
 	private final List<AzureBlob> individualBlobs;
 
-	public AzureBlobAction(AbstractBuild build, String storageAccountName, String containerName,
+	public AzureBlobAction(Run build, String storageAccountName, String containerName,
 			List<AzureBlob> individualBlobs, AzureBlob zipArchiveBlob,
 			boolean allowAnonymousAccess) {
 		this.build = build;
@@ -64,7 +64,7 @@ public class AzureBlobAction implements RunAction {
 	public void onLoad() {
 	}
 	
-	public AbstractBuild<?,?> getBuild() {
+	public Run<?,?> getBuild() {
 	      return build;
 	}
 	
