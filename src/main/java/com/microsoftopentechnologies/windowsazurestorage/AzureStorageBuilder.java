@@ -15,7 +15,6 @@
  */
 package com.microsoftopentechnologies.windowsazurestorage;
 
-import java.io.File;
 import java.util.Locale;
 
 import jenkins.tasks.SimpleBuildStep;
@@ -23,7 +22,6 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import com.microsoftopentechnologies.windowsazurestorage.beans.StorageAccountInfo;
@@ -35,32 +33,23 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.matrix.MatrixBuild;
 import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
-import hudson.model.Hudson;
-import hudson.model.Item;
 import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Builder;
-import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.plugins.copyartifact.*;
-import hudson.security.AccessControlled;
 import hudson.tasks.BuildStepDescriptor;
-import hudson.maven.MavenModuleSet;
-import hudson.maven.MavenModuleSetBuild;
-import static hudson.tasks.BuildStepDescriptor.filter;
-import java.io.IOException;
-import java.io.PrintStream;
+import hudson.model.FreeStyleBuild;
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
-import org.kohsuke.stapler.AncestorInPath;
 
 
 public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
@@ -171,8 +160,36 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 		try {
                         // TODO:
                         final EnvVars envVars = run.getEnvironment(listener);
+                        
+                        // Resolve container name
+			String expContainerName = Util.replaceMacro(containerName, envVars);
+			if (expContainerName != null) {
+				expContainerName = expContainerName.trim().toLowerCase(
+						Locale.ENGLISH);
+			}
+                        
 			// Get storage account
 			strAcc = getDescriptor().getStorageAccount(storageAccName);
+                        
+                        // Resolve include patterns
+                        String expIncludePattern = Util.replaceMacro(includeFilesPattern, envVars);
+
+                        // Resolve exclude patterns
+                        String expExcludePattern = Util.replaceMacro(excludeFilesPattern, envVars);
+
+                        // If the include is empty, make **/*
+                        if (Utils.isNullOrEmpty(expIncludePattern)) {
+                            expIncludePattern = "**/*";
+                        }
+
+                        // Exclude archive.zip by default.
+                        if (!includeArchiveZips) {
+                            if (expExcludePattern != null) {
+                                expExcludePattern += ",archive.zip";
+                            } else {
+                                expExcludePattern = "archive.zip";
+                            }
+                        }
                         
                         Job<?,?> job = Jenkins.getInstance().getItemByFullName(projectName, Job.class);
                         BuildFilter filter = new BuildFilter();
@@ -180,76 +197,75 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
                         listener.getLogger().println(getBuildSelector());
                         
                         Run source = getBuildSelector().getBuild(job, envVars, filter, run);
-                        // listener.getLogger().println("get build info");
-                        final AzureBlobAction action = source.getAction(AzureBlobAction.class);
-                        List<AzureBlob> blob = action.getIndividualBlobs();
-                        for(AzureBlob item: blob){
-                            listener.getLogger().println("item: " + item.getBlobURL());
-                            URL blobURL = new URL(item.getBlobURL());
-                            listener.getLogger().println(blobURL.getFile());
+                        
+                        
+                        if (!Utils.isNullOrEmpty(containerName)) {
+                            // Resolve download location
+                            String downloadDir = Util.replaceMacro(downloadDirLoc, envVars);
+                            int filesDownloaded = WAStorageClient.download(run, listener,
+                                    strAcc, expContainerName, expIncludePattern, expExcludePattern,
+                                    downloadDir, flattenDirectories);
+
+                            if (filesDownloaded == 0) { // Mark build unstable if no files are
+                                // downloaded
+                                listener.getLogger().println(
+                                        Messages.AzureStorageBuilder_nofiles_downloaded());
+                                run.setResult(Result.UNSTABLE);
+                            } else {
+                                listener.getLogger()
+                                        .println(
+                                                Messages.AzureStorageBuilder_files_downloaded_count(filesDownloaded));
+                            }
+                        }
+                        else if (source instanceof FreeStyleBuild) {
+                            downloadArtifacts(source, run, expIncludePattern, expExcludePattern, listener, strAcc);
+                        } else if (source instanceof MatrixBuild) {
+                            listener.getLogger().println(((MatrixBuild) source).getExactRuns().size());
+                            for (Run r : ((MatrixBuild) source).getExactRuns()) {
+//                                final AzureBlobAction action = r.getAction(AzureBlobAction.class);
+//                                List<AzureBlob> blob = action.getIndividualBlobs();
+//                                for (AzureBlob item : blob) {
+//                                    listener.getLogger().println("item:::: " + item.getBlobURL());
+//                                    URL blobURL = new URL(item.getBlobURL());
+//                                    listener.getLogger().println(blobURL.getFile());
+//                                }
+                                  downloadArtifacts(r, run, expIncludePattern, expExcludePattern, listener, strAcc);
+                            }
+
                         }
                         
-//                        if(getBuildSelector() instanceof PermalinkBuildSelector) {
-//                            listener.getLogger().println(filter.isSelectable(run, envVars));
-//                            listener.getLogger().println("source: " + source);
-//                        }
-//                        else {
-//                            listener.getLogger().println("" + source.number);
-//                            listener.getLogger().println("" + source.getParent().getFullDisplayName());
-//                            EnvVars parentEnvVars = source.getEnvironment(null);
-//                            listener.getLogger().println("manage artifacts: " + parentEnvVars.get("manageArtifacts"));
+                        ///////////////////////////////////////////////////////////////////////
+//                        final AzureBlobAction action = source.getAction(AzureBlobAction.class);
+//                        List<AzureBlob> blob = action.getIndividualBlobs();
+//                        for (AzureBlob item: blob){
+//                            listener.getLogger().println("item: " + item.getBlobURL());
+//                            URL blobURL = new URL(item.getBlobURL());
+//                            listener.getLogger().println(blobURL.getFile());
 //                        }
                         
-			// Resolve container name
-//			String expContainerName = Util.replaceMacro(containerName, envVars);
-//			if (expContainerName != null) {
-//				expContainerName = expContainerName.trim().toLowerCase(
-//						Locale.ENGLISH);
+
+//			// Resolve download location
+//			String downloadDir = Util.replaceMacro(downloadDirLoc, envVars);
+//
+////			// Validate input data
+////			if (!validateData(build, taskListener, strAcc, expContainerName)) {
+////				return true; // returning true so that build can continue.
+////			}
+//
+//			int filesDownloaded = WAStorageClient.download(run, listener,
+//					strAcc, blob, expIncludePattern, expExcludePattern, 
+//					downloadDir, flattenDirectories);
+//
+//			if (filesDownloaded == 0) { // Mark build unstable if no files are
+//										// downloaded
+//				listener.getLogger().println(
+//						Messages.AzureStorageBuilder_nofiles_downloaded());
+//				run.setResult(Result.UNSTABLE);
+//			} else {
+//				listener.getLogger()
+//						.println(
+//								Messages.AzureStorageBuilder_files_downloaded_count(filesDownloaded));
 //			}
-
-			// Resolve include patterns
-			String expIncludePattern = Util.replaceMacro(includeFilesPattern, envVars);
-			
-			// Resolve exclude patterns
-			String expExcludePattern = Util.replaceMacro(excludeFilesPattern, envVars);
-			
-			// If the include is empty, make **/*
-			if (Utils.isNullOrEmpty(expIncludePattern)) {
-				expIncludePattern = "**/*";
-			}
-			
-			// Exclude archive.zip by default.
-			if (!includeArchiveZips) {
-				if (expExcludePattern != null) {
-					expExcludePattern += ",archive.zip";
-				}
-				else {
-					expExcludePattern = "archive.zip";
-				}
-			}
-
-			// Resolve download location
-			String downloadDir = Util.replaceMacro(downloadDirLoc, envVars);
-
-//			// Validate input data
-//			if (!validateData(build, taskListener, strAcc, expContainerName)) {
-//				return true; // returning true so that build can continue.
-//			}
-
-			int filesDownloaded = WAStorageClient.download(run, listener,
-					strAcc, blob, expIncludePattern, expExcludePattern, 
-					downloadDir, flattenDirectories);
-
-			if (filesDownloaded == 0) { // Mark build unstable if no files are
-										// downloaded
-				listener.getLogger().println(
-						Messages.AzureStorageBuilder_nofiles_downloaded());
-				run.setResult(Result.UNSTABLE);
-			} else {
-				listener.getLogger()
-						.println(
-								Messages.AzureStorageBuilder_files_downloaded_count(filesDownloaded));
-			}
 		} catch (Exception e) {
 			e.printStackTrace(listener.error(Messages
 					.AzureStorageBuilder_download_err(strAcc
@@ -257,6 +273,43 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 			run.setResult(Result.UNSTABLE);
 		}
 	}
+        
+        private boolean downloadArtifacts(Run<?, ?> source, Run<?, ?> run, String includeFilter, String excludeFilter, TaskListener listener, StorageAccountInfo strAcc) {
+
+            try {
+                final EnvVars envVars = run.getEnvironment(listener);
+                final AzureBlobAction action = source.getAction(AzureBlobAction.class);
+                List<AzureBlob> blob = action.getIndividualBlobs();
+                for (AzureBlob item : blob) {
+                    listener.getLogger().println("item: " + item.getBlobURL());
+                    URL blobURL = new URL(item.getBlobURL());
+                    listener.getLogger().println(blobURL.getFile());
+                }
+
+                // Resolve download location
+                String downloadDir = Util.replaceMacro(downloadDirLoc, envVars);
+
+                int filesDownloaded = WAStorageClient.download(run, listener,
+                        strAcc, blob, includeFilter, excludeFilter,
+                        downloadDir, flattenDirectories);
+
+                if (filesDownloaded == 0) { // Mark build unstable if no files are
+                    // downloaded
+                    listener.getLogger().println(
+                            Messages.AzureStorageBuilder_nofiles_downloaded());
+                    run.setResult(Result.UNSTABLE);
+                } else {
+                    listener.getLogger()
+                            .println(
+                                    Messages.AzureStorageBuilder_files_downloaded_count(filesDownloaded));
+                }
+
+            } catch (Exception e) {
+                run.setResult(Result.UNSTABLE);
+            }
+
+            return true;
+        }
 
 	private boolean validateData(AbstractBuild build, BuildListener listener,
 			StorageAccountInfo strAcc, String expContainerName) {
@@ -435,7 +488,6 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 		}
 	   }
 
-    // TODO
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
 
@@ -446,12 +498,14 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 
         @Override
         public String getDisplayName() {
-            // where does this go? 
-            return "Artifact...";
+            return "Artifact";
         }
 
         public DescriptorExtensionList<BuildSelector, Descriptor<BuildSelector>> getBuildSelectors() {
             final DescriptorExtensionList<BuildSelector, Descriptor<BuildSelector>> list = DescriptorExtensionList.createDescriptorList(Jenkins.getInstance(), BuildSelector.class);
+            list.remove(WorkspaceSelector.DESCRIPTOR);
+            list.remove(SavedBuildSelector.DESCRIPTOR);
+            list.remove(ParameterizedBuildSelector.DESCRIPTOR);
             return list;
         }
     }
