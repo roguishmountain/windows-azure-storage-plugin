@@ -17,12 +17,10 @@ package com.microsoftopentechnologies.windowsazurestorage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.FileOutputStream;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
@@ -33,14 +31,10 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
-import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.DirectoryScanner;
 
 import org.springframework.util.AntPathMatcher;
 
 import hudson.FilePath;
-import hudson.model.BuildListener;
-import hudson.model.AbstractBuild;
 import hudson.util.DirScanner.*;
 
 import com.microsoft.windowsazure.storage.CloudStorageAccount;
@@ -64,7 +58,6 @@ import com.microsoftopentechnologies.windowsazurestorage.exceptions.WAStorageExc
 import com.microsoftopentechnologies.windowsazurestorage.helper.Utils;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-import java.util.Arrays;
 import java.util.Map;
 
 public class WAStorageClient {

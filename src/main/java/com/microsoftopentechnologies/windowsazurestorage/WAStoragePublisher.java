@@ -20,7 +20,6 @@ import jenkins.tasks.SimpleBuildStep;
 import hudson.Launcher;
 import hudson.Extension;
 import hudson.util.CopyOnWriteList;
-import hudson.util.EnumConverter;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.model.AbstractBuild;
@@ -38,22 +37,17 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.Stapler;
 
 import com.microsoftopentechnologies.windowsazurestorage.beans.StorageAccountInfo;
 import com.microsoftopentechnologies.windowsazurestorage.helper.Utils;
-import hudson.EnvVars;
 import hudson.FilePath;
-import hudson.model.EnvironmentList;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 
 import javax.servlet.ServletException;
 
-import java.io.OutputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 
 public class WAStoragePublisher extends Recorder implements SimpleBuildStep {
@@ -283,7 +277,7 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep {
                         
 		// Get storage account and set formatted blob endpoint url.
 		StorageAccountInfo strAcc = getStorageAccount();
-                final Map<String, String> envVars = run.getEnvironment(listener);
+                final EnvVars envVars = run.getEnvironment(listener);
 
 		// Resolve container name
 		String expContainerName = Util.replaceMacro(containerName, envVars);
