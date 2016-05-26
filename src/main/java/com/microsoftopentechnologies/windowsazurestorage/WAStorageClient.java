@@ -14,29 +14,6 @@
  */
 package com.microsoftopentechnologies.windowsazurestorage;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
-import org.apache.commons.lang.time.DurationFormatUtils;
-
-import org.springframework.util.AntPathMatcher;
-
-import hudson.FilePath;
-import hudson.util.DirScanner.*;
-
 import com.microsoft.windowsazure.storage.CloudStorageAccount;
 import com.microsoft.windowsazure.storage.RetryNoRetry;
 import com.microsoft.windowsazure.storage.StorageCredentialsAccountAndKey;
@@ -56,9 +33,29 @@ import com.microsoftopentechnologies.windowsazurestorage.WAStoragePublisher.Uplo
 import com.microsoftopentechnologies.windowsazurestorage.beans.StorageAccountInfo;
 import com.microsoftopentechnologies.windowsazurestorage.exceptions.WAStorageException;
 import com.microsoftopentechnologies.windowsazurestorage.helper.Utils;
+import hudson.FilePath;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.util.DirScanner.*;
+import hudson.util.DirScanner.Glob;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
+import java.util.logging.Logger;
+import org.apache.commons.lang.time.DurationFormatUtils;
+import org.springframework.util.AntPathMatcher;
 
 public class WAStorageClient {
 	private static final Logger LOGGER = Logger.getLogger(WAStorageClient.class.getName());
