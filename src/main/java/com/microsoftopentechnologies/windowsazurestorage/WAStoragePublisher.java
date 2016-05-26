@@ -314,21 +314,12 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep {
 			expVP = expVP.trim() + Utils.FWD_SLASH;
 		}
                 
-//                if (!Utils.isNullOrEmpty(containerName) && !containerName.endsWith(Utils.FWD_SLASH)) {
-//			containerName = containerName.trim();
-//		}
-                
                 if(!Utils.isNullOrEmpty(expVP) && manageArtifacts) {
                     expVP = envVars.get("JOB_NAME") + Utils.FWD_SLASH + envVars.get("BUILD_NUMBER") + expContainerName + expVP;
                 }
                 else if(Utils.isNullOrEmpty(expVP) && manageArtifacts) {
                     expVP = envVars.get("JOB_NAME") + Utils.FWD_SLASH + envVars.get("BUILD_NUMBER") + expContainerName;
                 }
-
-		// Validate input data
-//		if (!validateData(build, listener, strAcc, expContainerName)) {
-//			return true; // returning true so that build can continue.
-//		}
 
 		try {
 			List<AzureBlob> individualBlobs = new ArrayList<AzureBlob>();
@@ -361,7 +352,6 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep {
 					.WAStoragePublisher_uploaded_err(strAcc.getStorageAccName())));
 			run.setResult(Result.UNSTABLE);
 		}
-//		return true;
 	}
 
 	public BuildStepMonitor getRequiredMonitorService() {

@@ -291,8 +291,8 @@ public class WAStorageClient {
 	/**
 	 * Uploads files to Windows Azure Storage.
 	 * 
+         * @param run
 	 * @param listener
-	 * @param build
 	 * @param StorageAccountInfo
 	 *            storage account information.
 	 * @param expContainerName
@@ -305,6 +305,10 @@ public class WAStorageClient {
 	 *            Virtual Path of blob container.
 	 * @param excludeFP
 	 *            File Path in ant glob syntax to exclude from upload
+         * @param uploadType
+         * @param individualBlobs
+         * @param archiveBlobs
+         * 
 	 * @return filesUploaded number of files that are uploaded.
 	 * @throws WAStorageException
 	 * @throws Exception
@@ -501,13 +505,14 @@ public class WAStorageClient {
 	/**
 	 * Downloads from Azure blob
 	 * 
-	 * @param build
+         * @param run
 	 * @param listener
 	 * @param strAcc
-	 * @param expContainerName
+         * @param blobs
 	 * @param includePattern
 	 * @param excludePattern
 	 * @param downloadDirLoc
+         * @param flattenDirectories
 	 * @return
 	 * @throws WAStorageException
 	 */
@@ -569,13 +574,14 @@ public class WAStorageClient {
         	/**
 	 * Downloads from Azure blob
 	 * 
-	 * @param build
+	 * @param run
 	 * @param listener
 	 * @param strAcc
 	 * @param expContainerName
 	 * @param includePattern
 	 * @param excludePattern
 	 * @param downloadDirLoc
+         * @param flattenDirectories
 	 * @return
 	 * @throws WAStorageException
 	 */
@@ -687,6 +693,7 @@ public class WAStorageClient {
 	 * @param includePattern
 	 * @param excludePattern
 	 * @param downloadDir
+         * @param flattenDirectories
 	 * @param listener
 	 * @return
 	 * @throws URISyntaxException
@@ -741,7 +748,9 @@ public class WAStorageClient {
 	 * @param includePattern
 	 * @param excludePattern
 	 * @param downloadDir
+         * @param flattenDirectories
 	 * @param listener
+         * @param path
 	 * @return
 	 * @throws URISyntaxException
 	 * @throws StorageException
@@ -793,8 +802,12 @@ public class WAStorageClient {
 	 * Downloads blobs from virtual directory
 	 * 
 	 * @param blobDirectory
+         * @param includePatterns
+         * @param excludePatterns
 	 * @param downloadDir
+         * @param flattenDirectories
 	 * @param listener
+         * @param path
 	 * @return
 	 * @throws StorageException
 	 * @throws URISyntaxException
@@ -840,7 +853,10 @@ public class WAStorageClient {
 	 * Downloads blobs from virtual directory
 	 * 
 	 * @param blobDirectory
+         * @param includePatterns
+         * @param excludePatterns
 	 * @param downloadDir
+         * @param flattenDirectories 
 	 * @param listener
 	 * @return
 	 * @throws StorageException
@@ -889,6 +905,7 @@ public class WAStorageClient {
 	 * 
 	 * @param blob
 	 * @param downloadDir
+         * @param flattenDirectories
 	 * @param listener
 	 * @throws URISyntaxException
 	 * @throws StorageException
