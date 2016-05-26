@@ -281,10 +281,14 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep {
 
 		// Resolve container name
 		String expContainerName = Util.replaceMacro(containerName, envVars);
-		if (expContainerName != null) {
-			expContainerName = expContainerName.trim().toLowerCase(
-					Locale.ENGLISH);
+		if (!Utils.isNullOrEmpty(expContainerName)) {
+			expContainerName = Utils.FWD_SLASH + expContainerName.trim().toLowerCase(
+					Locale.ENGLISH) + Utils.FWD_SLASH;
 		}
+                else {
+                    expContainerName = expContainerName.trim().toLowerCase(
+					Locale.ENGLISH) + Utils.FWD_SLASH;
+                }
 
 		// Resolve file path
 		String expFP = Util.replaceMacro(filesPath, envVars);
@@ -300,8 +304,6 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep {
 			excludeFP = excludeFP.trim();
 		}
 
-                envVars.put("manageArtifacts", Boolean.toString(manageArtifacts));
-                listener.getLogger().println("manage artifacts: " + envVars.get("manageArtifacts"));
 		// Resolve virtual path
 		String expVP = Util.replaceMacro(virtualPath, envVars);
 		if (Utils.isNullOrEmpty(expVP) && !manageArtifacts) {
@@ -312,20 +314,16 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep {
 			expVP = expVP.trim() + Utils.FWD_SLASH;
 		}
                 
-                if (!Utils.isNullOrEmpty(containerName) && !containerName.endsWith(Utils.FWD_SLASH)) {
-			containerName = containerName.trim() + Utils.FWD_SLASH;
-		}
+//                if (!Utils.isNullOrEmpty(containerName) && !containerName.endsWith(Utils.FWD_SLASH)) {
+//			containerName = containerName.trim();
+//		}
                 
                 if(!Utils.isNullOrEmpty(expVP) && manageArtifacts) {
-                    expVP = envVars.get("JOB_NAME") + Utils.FWD_SLASH + envVars.get("BUILD_NUMBER") +  Utils.FWD_SLASH + expContainerName + expVP;
+                    expVP = envVars.get("JOB_NAME") + Utils.FWD_SLASH + envVars.get("BUILD_NUMBER") + expContainerName + expVP;
                 }
                 else if(Utils.isNullOrEmpty(expVP) && manageArtifacts) {
-                    expVP = envVars.get("JOB_NAME") + Utils.FWD_SLASH + envVars.get("BUILD_NUMBER") +  Utils.FWD_SLASH + expContainerName;
+                    expVP = envVars.get("JOB_NAME") + Utils.FWD_SLASH + envVars.get("BUILD_NUMBER") + expContainerName;
                 }
-                
-                listener.getLogger().println("evpVP " + expVP);
-                listener.getLogger().println("container " + expContainerName);
-                listener.getLogger().println("jobname " + envVars.get("JOB_NAME"));
 
 		// Validate input data
 //		if (!validateData(build, listener, strAcc, expContainerName)) {

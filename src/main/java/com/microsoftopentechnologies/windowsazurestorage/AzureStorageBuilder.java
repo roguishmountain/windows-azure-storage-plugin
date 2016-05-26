@@ -194,10 +194,7 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
                         Job<?,?> job = Jenkins.getInstance().getItemByFullName(projectName, Job.class);
                         BuildFilter filter = new BuildFilter();
                         
-                        listener.getLogger().println(getBuildSelector());
-                        
                         Run source = getBuildSelector().getBuild(job, envVars, filter, run);
-                        
                         
                         if (!Utils.isNullOrEmpty(containerName)) {
                             // Resolve download location
@@ -216,56 +213,13 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
                                         .println(
                                                 Messages.AzureStorageBuilder_files_downloaded_count(filesDownloaded));
                             }
-                        }
-                        else if (source instanceof FreeStyleBuild) {
+                        } else if (source instanceof FreeStyleBuild) {
                             downloadArtifacts(source, run, expIncludePattern, expExcludePattern, listener, strAcc);
                         } else if (source instanceof MatrixBuild) {
-                            listener.getLogger().println(((MatrixBuild) source).getExactRuns().size());
                             for (Run r : ((MatrixBuild) source).getExactRuns()) {
-//                                final AzureBlobAction action = r.getAction(AzureBlobAction.class);
-//                                List<AzureBlob> blob = action.getIndividualBlobs();
-//                                for (AzureBlob item : blob) {
-//                                    listener.getLogger().println("item:::: " + item.getBlobURL());
-//                                    URL blobURL = new URL(item.getBlobURL());
-//                                    listener.getLogger().println(blobURL.getFile());
-//                                }
                                   downloadArtifacts(r, run, expIncludePattern, expExcludePattern, listener, strAcc);
                             }
-
                         }
-                        
-                        ///////////////////////////////////////////////////////////////////////
-//                        final AzureBlobAction action = source.getAction(AzureBlobAction.class);
-//                        List<AzureBlob> blob = action.getIndividualBlobs();
-//                        for (AzureBlob item: blob){
-//                            listener.getLogger().println("item: " + item.getBlobURL());
-//                            URL blobURL = new URL(item.getBlobURL());
-//                            listener.getLogger().println(blobURL.getFile());
-//                        }
-                        
-
-//			// Resolve download location
-//			String downloadDir = Util.replaceMacro(downloadDirLoc, envVars);
-//
-////			// Validate input data
-////			if (!validateData(build, taskListener, strAcc, expContainerName)) {
-////				return true; // returning true so that build can continue.
-////			}
-//
-//			int filesDownloaded = WAStorageClient.download(run, listener,
-//					strAcc, blob, expIncludePattern, expExcludePattern, 
-//					downloadDir, flattenDirectories);
-//
-//			if (filesDownloaded == 0) { // Mark build unstable if no files are
-//										// downloaded
-//				listener.getLogger().println(
-//						Messages.AzureStorageBuilder_nofiles_downloaded());
-//				run.setResult(Result.UNSTABLE);
-//			} else {
-//				listener.getLogger()
-//						.println(
-//								Messages.AzureStorageBuilder_files_downloaded_count(filesDownloaded));
-//			}
 		} catch (Exception e) {
 			e.printStackTrace(listener.error(Messages
 					.AzureStorageBuilder_download_err(strAcc
@@ -280,11 +234,6 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
                 final EnvVars envVars = run.getEnvironment(listener);
                 final AzureBlobAction action = source.getAction(AzureBlobAction.class);
                 List<AzureBlob> blob = action.getIndividualBlobs();
-                for (AzureBlob item : blob) {
-                    listener.getLogger().println("item: " + item.getBlobURL());
-                    URL blobURL = new URL(item.getBlobURL());
-                    listener.getLogger().println(blobURL.getFile());
-                }
 
                 // Resolve download location
                 String downloadDir = Util.replaceMacro(downloadDirLoc, envVars);

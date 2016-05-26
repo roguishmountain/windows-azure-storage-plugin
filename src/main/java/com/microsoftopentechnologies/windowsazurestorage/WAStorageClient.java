@@ -270,7 +270,7 @@ public class WAStorageClient {
 	 * getBlobDirectoryList(blobDir, blobList); } } } }
 	 */
 	
-	private static void upload(CloudBlockBlob blob, FilePath src) 
+	private static void upload(TaskListener listener, CloudBlockBlob blob, FilePath src) 
 			throws StorageException, IOException, InterruptedException {
 		long startTime = System.currentTimeMillis();
 		InputStream inputStream = src.read();
@@ -285,7 +285,7 @@ public class WAStorageClient {
 			}
 		}
 		long endTime = System.currentTimeMillis();
-		// listener.getLogger().println("Uploaded blob with uri "+ blob.getUri() + " in " + getTime(endTime - startTime));
+		listener.getLogger().println("Uploaded blob with uri "+ blob.getUri() + " in " + getTime(endTime - startTime));
 	}
 
 	/**
@@ -414,7 +414,7 @@ public class WAStorageClient {
 								blob = container.getBlockBlobReference(prefix + srcPrefix);
 							}
 
-							upload(blob, src);
+							upload(listener, blob, src);
 
 							individualBlobs.add(new AzureBlob(blob.getName(),blob.getUri().toString().replace("http://", "https://")));
 						}
@@ -441,7 +441,7 @@ public class WAStorageClient {
 
 				CloudBlockBlob blob = container.getBlockBlobReference(blobURI);
 
-				upload(blob, zipPath);
+				upload(listener, blob, zipPath);
 				// Make sure to note the new blob as an archive blob,
 				// so that it can be specially marked on the azure storage page.
 				archiveBlobs.add(new AzureBlob(blob.getName(),blob.getUri().toString().replace("http://", "https://")));
@@ -719,7 +719,6 @@ public class WAStorageClient {
                                 String blobPath = blob.getUri().getPath();
 
 				// Check whether we should download it.
-                                // blob.getUri().getPath().equals(path)
 				if (blobPathMatches(blob.getName(), includePatterns, excludePatterns, true)) {
 					downloadBlob(blob, downloadDir, flattenDirectories, listener);
 					filesDownloaded++;
@@ -774,8 +773,8 @@ public class WAStorageClient {
                                 String blobPath = blob.getUri().getPath();
 
 				// Check whether we should download it.
-                                // blob.getUri().getPath().equals(path)
-				if (blobPathMatches(blob.getName(), includePatterns, excludePatterns, true) && (Utils.FWD_SLASH + path).equals(blobPath)) {
+                                // if (blobPathMatches(blob.getName(), includePatterns, excludePatterns, true) && (Utils.FWD_SLASH + path).equalsIgnoreCase(blobPath)) {
+				if (blobPathMatches(blob.getName(), includePatterns, excludePatterns, true) && (path).equalsIgnoreCase(blobPath)) {
 					downloadBlob(blob, downloadDir, flattenDirectories, listener);
 					filesDownloaded++;
 				}
@@ -823,7 +822,7 @@ public class WAStorageClient {
                                 String blobPath = blob.getUri().getPath();
                                 
 
-				if (blobPathMatches(blob.getName(), includePatterns, excludePatterns, true) && path.equals(blobPath)) {
+				if (blobPathMatches(blob.getName(), includePatterns, excludePatterns, true) && path.equalsIgnoreCase(blobPath)) {
 					downloadBlob(blob, downloadDir, flattenDirectories, listener);
 					filesDownloaded++;
 				}
