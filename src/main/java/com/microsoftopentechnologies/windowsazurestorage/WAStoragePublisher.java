@@ -15,40 +15,32 @@
  */
 package com.microsoftopentechnologies.windowsazurestorage;
 
-import jenkins.tasks.SimpleBuildStep;
-
-import hudson.Launcher;
-import hudson.Extension;
-import hudson.util.CopyOnWriteList;
-import hudson.util.FormValidation;
-import hudson.util.ListBoxModel;
+import com.microsoftopentechnologies.windowsazurestorage.beans.StorageAccountInfo;
+import com.microsoftopentechnologies.windowsazurestorage.helper.Utils;
+import hudson.*;
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Result;
-import hudson.model.AbstractProject;
-import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.BuildStepDescriptor;
-import hudson.tasks.Publisher;
-import hudson.tasks.Recorder;
-import hudson.*;
-import net.sf.json.JSONObject;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.QueryParameter;
-
-import com.microsoftopentechnologies.windowsazurestorage.beans.StorageAccountInfo;
-import com.microsoftopentechnologies.windowsazurestorage.helper.Utils;
-import hudson.FilePath;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-
-import javax.servlet.ServletException;
-
+import hudson.tasks.BuildStepDescriptor;
+import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.Publisher;
+import hudson.tasks.Recorder;
+import hudson.util.CopyOnWriteList;
+import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
 import java.io.IOException;
 import java.util.*;
 import javax.annotation.Nonnull;
+import javax.servlet.ServletException;
+import jenkins.tasks.SimpleBuildStep;
+import net.sf.json.JSONObject;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
 
 public class WAStoragePublisher extends Recorder implements SimpleBuildStep {
 
