@@ -15,41 +15,36 @@
  */
 package com.microsoftopentechnologies.windowsazurestorage;
 
-import java.util.Locale;
-
-import jenkins.tasks.SimpleBuildStep;
-import jenkins.model.Jenkins;
-import net.sf.json.JSONObject;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
-
 import com.microsoftopentechnologies.windowsazurestorage.beans.StorageAccountInfo;
 import com.microsoftopentechnologies.windowsazurestorage.helper.Utils;
 import hudson.DescriptorExtensionList;
 import hudson.EnvVars;
-
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Util;
 import hudson.matrix.MatrixBuild;
-import hudson.model.BuildListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.BuildListener;
 import hudson.model.Descriptor;
+import hudson.model.FreeStyleBuild;
 import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.plugins.copyartifact.*;
+import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Builder;
 import hudson.util.ListBoxModel;
-import hudson.plugins.copyartifact.*;
-import hudson.tasks.BuildStepDescriptor;
-import hudson.model.FreeStyleBuild;
-import java.net.URL;
 import java.util.List;
+import java.util.Locale;
+import jenkins.model.Jenkins;
+import jenkins.tasks.SimpleBuildStep;
+import net.sf.json.JSONObject;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
 
 
 public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
