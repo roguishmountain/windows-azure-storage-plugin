@@ -457,9 +457,9 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep {
 		/**
 		 * Validates storage account details.
 		 *
-		 * @param storageAccountName
-		 * @param blobEndPointURL
-		 * @param storageAccountKey
+		 * @param was_storageAccName
+		 * @param was_storageAccountKey
+		 * @param was_blobEndPointURL
 		 * @return
 		 * @throws IOException
 		 * @throws ServletException

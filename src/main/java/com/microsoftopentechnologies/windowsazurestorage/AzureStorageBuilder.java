@@ -148,6 +148,13 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 		return BuildStepMonitor.NONE;
 	}
 
+	/**
+	 *
+	 * @param run
+	 * @param filePath
+	 * @param launch
+	 * @param listener
+	 */
 	public void perform(Run<?, ?> run, FilePath filePath, Launcher launch, TaskListener listener) {
 		StorageAccountInfo strAcc = null;
 
