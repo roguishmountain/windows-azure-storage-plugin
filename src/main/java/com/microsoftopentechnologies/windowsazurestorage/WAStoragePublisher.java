@@ -339,8 +339,9 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep {
 		try {
 			List<AzureBlob> individualBlobs = new ArrayList<AzureBlob>();
 			List<AzureBlob> archiveBlobs = new ArrayList<AzureBlob>();
+			listener.getLogger().println("launcher: " + launcher.getChannel());
 
-			int filesUploaded = WAStorageClient.upload(run, listener, strAcc,
+			int filesUploaded = WAStorageClient.upload(run, launcher, listener, strAcc,
 					expContainerName, cntPubAccess, cleanUpContainer, expFP,
 					expVP, excludeFP, getArtifactUploadType(), individualBlobs, archiveBlobs, manageArtifacts);
 
@@ -457,9 +458,7 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep {
 		/**
 		 * Validates storage account details.
 		 *
-		 * @param was_storageAccName
-		 * @param was_storageAccountKey
-		 * @param was_blobEndPointURL
+		 * @param storageAccountName
 		 * @return
 		 * @throws IOException
 		 * @throws ServletException

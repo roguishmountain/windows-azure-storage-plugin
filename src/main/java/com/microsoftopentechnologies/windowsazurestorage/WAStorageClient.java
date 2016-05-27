@@ -34,10 +34,12 @@ import com.microsoftopentechnologies.windowsazurestorage.beans.StorageAccountInf
 import com.microsoftopentechnologies.windowsazurestorage.exceptions.WAStorageException;
 import com.microsoftopentechnologies.windowsazurestorage.helper.Utils;
 import hudson.FilePath;
+import hudson.Launcher;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.util.DirScanner.*;
 import hudson.util.DirScanner.Glob;
+import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -260,7 +262,7 @@ public class WAStorageClient {
 	 * blobItem; blobList.add(blobDir.getPrefix()); // list blobs again
 	 * getBlobDirectoryList(blobDir, blobList); } } } }
 	 */
-	private static void upload(TaskListener listener, CloudBlockBlob blob, FilePath src)
+	private static void upload(TaskListener listener, Launcher launcher, CloudBlockBlob blob, FilePath src)
 			throws StorageException, IOException, InterruptedException {
 		long startTime = System.currentTimeMillis();
 		InputStream inputStream = src.read();
@@ -297,7 +299,7 @@ public class WAStorageClient {
 	 * @throws WAStorageException
 	 * @throws Exception
 	 */
-	public static int upload(Run<?, ?> run, TaskListener listener,
+	public static int upload(Run<?, ?> run, Launcher launcher, TaskListener listener,
 			StorageAccountInfo strAcc, String expContainerName,
 			boolean cntPubAccess, boolean cleanUpContainer, String expFP,
 			String expVP, String excludeFP, UploadType uploadType,
@@ -308,7 +310,8 @@ public class WAStorageClient {
 		try {
 //			FilePath workspacePath = build.getWorkspace();
 			Map<String, String> envVars = run.getEnvironment(listener);
-			FilePath workspacePath = new FilePath(new File(envVars.get("WORKSPACE")));
+			FilePath workspacePath = new FilePath(launcher.getChannel(), new FilePath(new File(envVars.get("WORKSPACE"))).getRemote());
+			
 
 			if (workspacePath == null) {
 				listener.getLogger().println(
@@ -402,7 +405,7 @@ public class WAStorageClient {
 								blob = container.getBlockBlobReference(prefix + srcPrefix);
 							}
 
-							upload(listener, blob, src);
+							upload(listener, launcher, blob, src);
 
 							individualBlobs.add(new AzureBlob(blob.getName(), blob.getUri().toString().replace("http://", "https://")));
 						}
@@ -429,7 +432,7 @@ public class WAStorageClient {
 
 				CloudBlockBlob blob = container.getBlockBlobReference(blobURI);
 
-				upload(listener, blob, zipPath);
+				upload(listener, launcher, blob, zipPath);
 				// Make sure to note the new blob as an archive blob,
 				// so that it can be specially marked on the azure storage page.
 				archiveBlobs.add(new AzureBlob(blob.getName(), blob.getUri().toString().replace("http://", "https://")));
@@ -500,7 +503,7 @@ public class WAStorageClient {
 	 * @return
 	 * @throws WAStorageException
 	 */
-	public static int download(Run<?, ?> run,
+	public static int download(Run<?, ?> run, Launcher launcher,
 			TaskListener listener, StorageAccountInfo strAcc,
 			List<AzureBlob> blobs, String includePattern, String excludePattern,
 			String downloadDirLoc, boolean flattenDirectories)
@@ -511,9 +514,9 @@ public class WAStorageClient {
 
 		for (AzureBlob blob : blobs) {
 			try {
-				//FilePath workspacePath = run.getWorkspace();
+				//FilePath workspacePath = build.getWorkspace();
 				Map<String, String> envVars = run.getEnvironment(listener);
-				FilePath workspacePath = new FilePath(new File(envVars.get("WORKSPACE")));
+				FilePath workspacePath = new FilePath(launcher.getChannel(), new FilePath(new File(envVars.get("WORKSPACE"))).getRemote());
 
 				if (workspacePath == null) {
 					listener.getLogger().println(
@@ -569,7 +572,7 @@ public class WAStorageClient {
 	 * @return
 	 * @throws WAStorageException
 	 */
-	public static int download(Run<?, ?> run,
+	public static int download(Run<?, ?> run, Launcher launcher,
 			TaskListener listener, StorageAccountInfo strAcc,
 			String expContainerName, String includePattern, String excludePattern,
 			String downloadDirLoc, boolean flattenDirectories)
@@ -581,7 +584,7 @@ public class WAStorageClient {
 		try {
 			//FilePath workspacePath = run.getWorkspace();
 			Map<String, String> envVars = run.getEnvironment(listener);
-			FilePath workspacePath = new FilePath(new File(envVars.get("WORKSPACE")));
+			FilePath workspacePath = new FilePath(launcher.getChannel(), new FilePath(new File(envVars.get("WORKSPACE"))).getRemote());
 
 			if (workspacePath == null) {
 				listener.getLogger().println(

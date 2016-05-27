@@ -155,7 +155,7 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 	 * @param launch
 	 * @param listener
 	 */
-	public void perform(Run<?, ?> run, FilePath filePath, Launcher launch, TaskListener listener) {
+	public void perform(Run<?, ?> run, FilePath filePath, Launcher launcher, TaskListener listener) {
 		StorageAccountInfo strAcc = null;
 
 		try {
@@ -200,7 +200,7 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 			if (!Utils.isNullOrEmpty(containerName)) {
 				// Resolve download location
 				String downloadDir = Util.replaceMacro(downloadDirLoc, envVars);
-				int filesDownloaded = WAStorageClient.download(run, listener,
+				int filesDownloaded = WAStorageClient.download(run, launcher, listener,
 						strAcc, expContainerName, expIncludePattern, expExcludePattern,
 						downloadDir, flattenDirectories);
 
@@ -215,10 +215,10 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 									Messages.AzureStorageBuilder_files_downloaded_count(filesDownloaded));
 				}
 			} else if (source instanceof FreeStyleBuild) {
-				downloadArtifacts(source, run, expIncludePattern, expExcludePattern, listener, strAcc);
+				downloadArtifacts(source, run, launcher, expIncludePattern, expExcludePattern, listener, strAcc);
 			} else if (source instanceof MatrixBuild) {
 				for (Run r : ((MatrixBuild) source).getExactRuns()) {
-					downloadArtifacts(r, run, expIncludePattern, expExcludePattern, listener, strAcc);
+					downloadArtifacts(r, run, launcher, expIncludePattern, expExcludePattern, listener, strAcc);
 				}
 			}
 		} catch (Exception e) {
@@ -229,7 +229,7 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 		}
 	}
 
-	private boolean downloadArtifacts(Run<?, ?> source, Run<?, ?> run, String includeFilter, String excludeFilter, TaskListener listener, StorageAccountInfo strAcc) {
+	private boolean downloadArtifacts(Run<?, ?> source, Run<?, ?> run, Launcher launcher, String includeFilter, String excludeFilter, TaskListener listener, StorageAccountInfo strAcc) {
 
 		try {
 			final EnvVars envVars = run.getEnvironment(listener);
@@ -239,7 +239,7 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 			// Resolve download location
 			String downloadDir = Util.replaceMacro(downloadDirLoc, envVars);
 
-			int filesDownloaded = WAStorageClient.download(run, listener,
+			int filesDownloaded = WAStorageClient.download(run, launcher, listener,
 					strAcc, blob, includeFilter, excludeFilter,
 					downloadDir, flattenDirectories);
 
