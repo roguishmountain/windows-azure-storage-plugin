@@ -301,6 +301,9 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep {
 		if (!Utils.isNullOrEmpty(expContainerName)) {
 			expContainerName = Utils.FWD_SLASH + expContainerName.trim().toLowerCase(
 					Locale.ENGLISH) + Utils.FWD_SLASH;
+		} else if (Utils.isNullOrEmpty(expContainerName) && !manageArtifacts) {
+			expContainerName = "default" + expContainerName.trim().toLowerCase(
+					Locale.ENGLISH) + Utils.FWD_SLASH;
 		} else {
 			expContainerName = expContainerName.trim().toLowerCase(
 					Locale.ENGLISH) + Utils.FWD_SLASH;
