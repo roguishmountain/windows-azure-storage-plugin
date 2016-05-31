@@ -26,6 +26,7 @@ import hudson.Util;
 import hudson.matrix.MatrixBuild;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.AutoCompletionCandidates;
 import hudson.model.BuildListener;
 import hudson.model.Descriptor;
 import hudson.model.FreeStyleBuild;
@@ -44,6 +45,7 @@ import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
@@ -177,6 +179,8 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 
 			// Resolve exclude patterns
 			String expExcludePattern = Util.replaceMacro(excludeFilesPattern, envVars);
+
+			projectName = Util.replaceMacro(projectName, envVars);
 
 			// If the include is empty, make **/*
 			if (Utils.isNullOrEmpty(expIncludePattern)) {
@@ -341,6 +345,16 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 				}
 			}
 			return m;
+		}
+
+		public AutoCompletionCandidates doAutoCompleteProjectName(@QueryParameter String value) {
+			AutoCompletionCandidates projectList = new AutoCompletionCandidates();
+			for (AbstractProject<?, ?> project : Jenkins.getInstance().getItems(AbstractProject.class)) {
+				if (project.getName().toLowerCase().startsWith(value.toLowerCase())) {
+					projectList.add(project.getName());
+				}
+			}
+			return projectList;
 		}
 
 		/*
