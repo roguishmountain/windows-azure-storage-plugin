@@ -35,7 +35,6 @@ import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.plugins.copyartifact.*;
-import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Builder;
 import hudson.util.ListBoxModel;
@@ -448,28 +447,18 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep {
 			}
 			return storageAcc;
 		}
-	}
 
-	@Extension
-	public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
-
-		@Override
-		public boolean isApplicable(Class<? extends AbstractProject> clazz) {
-			return true;
-		}
-
-		@Override
-		public String getDisplayName() {
-			return "Artifact";
-		}
-
-		public DescriptorExtensionList<BuildSelector, Descriptor<BuildSelector>> getBuildSelectors() {
-			final DescriptorExtensionList<BuildSelector, Descriptor<BuildSelector>> list = DescriptorExtensionList.createDescriptorList(Jenkins.getInstance(), BuildSelector.class);
+		public DescriptorExtensionList<BuildSelector, Descriptor<BuildSelector>> getAvailableBuildSelectorList() {
+			DescriptorExtensionList<BuildSelector, Descriptor<BuildSelector>> list = DescriptorExtensionList.createDescriptorList(Jenkins.getInstance(), BuildSelector.class);
+			// remove unneeded build selectors
+			list.remove(new DownstreamBuildSelector("", "").getDescriptor());
+			list.remove(new PermalinkBuildSelector("").getDescriptor());
+			list.remove(new LastCompletedBuildSelector().getDescriptor());
 			list.remove(WorkspaceSelector.DESCRIPTOR);
 			list.remove(SavedBuildSelector.DESCRIPTOR);
 			list.remove(ParameterizedBuildSelector.DESCRIPTOR);
+			list.remove(SpecificBuildSelector.DESCRIPTOR);
 			return list;
 		}
 	}
-
 }
