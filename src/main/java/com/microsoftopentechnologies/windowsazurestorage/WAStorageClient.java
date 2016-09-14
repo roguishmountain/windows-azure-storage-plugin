@@ -303,7 +303,6 @@ public class WAStorageClient {
      * @param uploadType upload file type
      * @param individualBlobs blobs from build
      * @param archiveBlobs blobs from build in archive files
-     * @param manageArtifacts if the artifacts are managed
      * @param cleanUpContainer if container is cleaned
      * @return filesUploaded number of files that are uploaded.
      * @throws WAStorageException throws exception
@@ -312,7 +311,7 @@ public class WAStorageClient {
 			StorageAccountInfo strAcc, String expContainerName,
 			boolean cntPubAccess, boolean cleanUpContainer, String expFP,
 			String expVP, String excludeFP, UploadType uploadType,
-			List<AzureBlob> individualBlobs, List<AzureBlob> archiveBlobs, boolean manageArtifacts) throws WAStorageException {
+			List<AzureBlob> individualBlobs, List<AzureBlob> archiveBlobs) throws WAStorageException {
 
 		int filesUploaded = 0; // Counter to track no. of files that are uploaded
 
