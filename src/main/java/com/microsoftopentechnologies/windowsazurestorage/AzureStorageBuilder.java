@@ -169,13 +169,6 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep{
 		try {
 			final EnvVars envVars = run.getEnvironment(listener);
 
-			// Resolve container name
-			String expContainerName = Util.replaceMacro(containerName, envVars);
-			if (expContainerName != null) {
-				expContainerName = expContainerName.trim().toLowerCase(
-						Locale.ENGLISH);
-			}
-			
 			// Get storage account
 			strAcc = getDescriptor().getStorageAccount(storageAccName);
 
@@ -201,6 +194,9 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep{
 					expExcludePattern = "archive.zip";
 				}
 			}
+
+			// Validate input data
+			validateData(run, listener, strAcc);
 
 			Job<?, ?> job = Jenkins.getInstance().getItemByFullName(expProjectName, Job.class);
 			// Resolve download location
@@ -233,8 +229,8 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep{
 			final EnvVars envVars = run.getEnvironment(listener);
 			final AzureBlobAction action = source.getAction(AzureBlobAction.class);
 			List<AzureBlob> blob = action.getIndividualBlobs();
-			if(blob.isEmpty()) {
-				blob = Arrays.asList(action.getZipArchiveBlob());
+			if (action.getZipArchiveBlob() != null) {
+				blob.addAll(Arrays.asList(action.getZipArchiveBlob()));
 			}
 
 			// Resolve download location
@@ -258,6 +254,33 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep{
 		}
 
 		return true;
+	}
+
+	private void validateData(Run<?,?> run, TaskListener listener,
+			StorageAccountInfo strAcc) {
+
+		// No need to download artifacts if build failed
+		if (run.getResult() == Result.FAILURE) {
+			listener.getLogger().println(
+					Messages.AzureStorageBuilder_build_failed_err());
+		}
+
+		if (strAcc == null) {
+			listener.getLogger().println(
+					Messages.WAStoragePublisher_storage_account_err());
+			run.setResult(Result.UNSTABLE);
+		}
+
+		// Check if storage account credentials are valid
+		try {
+			WAStorageClient.validateStorageAccount(strAcc.getStorageAccName(),
+					strAcc.getStorageAccountKey(), strAcc.getBlobEndPointURL());
+		} catch (Exception e) {
+			listener.getLogger().println(Messages.Client_SA_val_fail());
+			listener.getLogger().println(strAcc.getStorageAccName());
+			listener.getLogger().println(strAcc.getBlobEndPointURL());
+			run.setResult(Result.UNSTABLE);
+		}
 	}
 
 	public AzureStorageBuilderDesc getDescriptor() {
@@ -410,14 +433,6 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep{
 
 		public DescriptorExtensionList<BuildSelector, Descriptor<BuildSelector>> getAvailableBuildSelectorList() {
 			DescriptorExtensionList<BuildSelector, Descriptor<BuildSelector>> list = DescriptorExtensionList.createDescriptorList(Jenkins.getInstance(), BuildSelector.class);
-			// remove unneeded build selectors
-			list.remove(new DownstreamBuildSelector("", "").getDescriptor());
-			list.remove(new PermalinkBuildSelector("").getDescriptor());
-			list.remove(new LastCompletedBuildSelector().getDescriptor());
-			list.remove(WorkspaceSelector.DESCRIPTOR);
-			list.remove(SavedBuildSelector.DESCRIPTOR);
-			list.remove(ParameterizedBuildSelector.DESCRIPTOR);
-			list.remove(SpecificBuildSelector.DESCRIPTOR);
 			return list;
 		}
 		

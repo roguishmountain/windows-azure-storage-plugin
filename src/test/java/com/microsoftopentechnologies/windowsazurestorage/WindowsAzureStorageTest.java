@@ -14,7 +14,7 @@ public class WindowsAzureStorageTest extends TestCase {
 		WAStoragePublisher wasp = new  WAStoragePublisher("storageAccName",
 			"filesPath", "excludeFilesPath", "containerName",
 			true, "virtualPath", false, true, true, false,
-			false, false, true, true);
+			false, false, true);
 		assertEquals("testJob/1/", wasp.buildFilePath("testJob", "1"));
 	}
 
