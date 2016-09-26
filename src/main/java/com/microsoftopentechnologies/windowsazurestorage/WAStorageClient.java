@@ -80,8 +80,8 @@ public class WAStorageClient {
 	 * container existence.
 	 * 
 	 * @param storageAccountName storage account name
-     * @param storageAccountKey storage account primary access key
-     * @param blobEndPointURL blob service endpoint URL
+     	 * @param storageAccountKey storage account primary access key
+     	 * @param blobEndPointURL blob service endpoint URL
 	 * @return true if valid
 	 * @throws WAStorageException throws exception
 	 */
@@ -290,23 +290,23 @@ public class WAStorageClient {
 	}
 
 	/**
-     * Uploads files to Windows Azure Storage.
-     * 
-     * @param run environment of build
-     * @param listener logging
-     * @param launcher env vars for remote builds
-     * @param strAcc storage account information.
-     * @param expContainerName container name.
-     * @param cntPubAccess denotes if container is publicly accessible.
-     * @param expFP File Path in ant glob syntax relative to CI tool workspace.
-     * @param expVP Virtual Path of blob container.
-     * @param excludeFP File Path in ant glob syntax to exclude from upload
-     * @param uploadType upload file type
-     * @param individualBlobs blobs from build
-     * @param archiveBlobs blobs from build in archive files
-     * @param cleanUpContainer if container is cleaned
-     * @return filesUploaded number of files that are uploaded.
-     * @throws WAStorageException throws exception
+	 * Uploads files to Windows Azure Storage.
+	 * 
+	 * @param run environment of build
+	 * @param listener logging
+	 * @param launcher env vars for remote builds
+	 * @param strAcc storage account information.
+	 * @param expContainerName container name.
+	 * @param cntPubAccess denotes if container is publicly accessible.
+	 * @param expFP File Path in ant glob syntax relative to CI tool workspace.
+	 * @param expVP Virtual Path of blob container.
+	 * @param excludeFP File Path in ant glob syntax to exclude from upload
+	 * @param uploadType upload file type
+	 * @param individualBlobs blobs from build
+	 * @param archiveBlobs blobs from build in archive files
+	 * @param cleanUpContainer if container is cleaned
+	 * @return filesUploaded number of files that are uploaded.
+	 * @throws WAStorageException throws exception
 	 */
 	public static int upload(Run<?, ?> run, Launcher launcher, TaskListener listener,
 			StorageAccountInfo strAcc, String expContainerName,
@@ -459,8 +459,8 @@ public class WAStorageClient {
 	 * Deletes contents of container
 	 * 
 	 * @param container container 
-     * @throws StorageException throws exception
-     * @throws URISyntaxException throws exception
+     	 * @throws StorageException throws exception
+     	 * @throws URISyntaxException throws exception
 	 */
 	private static void deleteContents(CloudBlobContainer container)
 			throws StorageException, URISyntaxException {
@@ -479,8 +479,8 @@ public class WAStorageClient {
 	 * Deletes contents of virtual directory
 	 * 
 	 * @param cloudBlobDirectory directory
-     * @throws StorageException throws exception
-     * @throws URISyntaxException throws exception
+     	 * @throws StorageException throws exception
+     	 * @throws URISyntaxException throws exception
 	 */
 	private static void deleteContents(CloudBlobDirectory cloudBlobDirectory)
 			throws StorageException, URISyntaxException {
@@ -572,8 +572,8 @@ public class WAStorageClient {
 	/**
 	 * Determines whether the path is an exact match to any of the provided patterns
 	 * @param path path
-     * @param patterns ant pattern
-     * @return true if match
+     	 * @param patterns ant pattern
+     	 * @return true if match
 	 */
 	private static boolean isExactMatch(String path, String[] patterns) {
 		AntPathMatcher matcher = new AntPathMatcher();
@@ -605,13 +605,13 @@ public class WAStorageClient {
 	 * Blob download from storage
 	 * 
 	 * @param blob cloudblob
-     * @param downloadDir dir to download to
-     * @param flattenDirectories if directories are flattened
-     * @param listener logging
-     * @throws URISyntaxException throws exception
-     * @throws StorageException throws exception
-     * @throws IOException throws exception
-     * @throws InterruptedException throws exception
+     	 * @param downloadDir dir to download to
+     	 * @param flattenDirectories if directories are flattened
+     	 * @param listener logging
+     	 * @throws URISyntaxException throws exception
+     	 * @throws StorageException throws exception
+     	 * @throws IOException throws exception
+     	 * @throws InterruptedException throws exception
 	 */
 	private static void downloadBlob(CloudBlob blob, FilePath downloadDir, boolean flattenDirectories,
 			TaskListener listener) throws WAStorageException {
@@ -658,9 +658,9 @@ public class WAStorageClient {
 	/**
 	 * Generates SAS URL for blob in Azure storage account
 	 * @param storageAccountName storage account name
-     * @param storageAccountKey storage account primary key
-     * @param containerName container name
-     * @param saBlobEndPoint blob endpoint URL
+     	 * @param storageAccountKey storage account primary key
+     	 * @param containerName container name
+     	 * @param saBlobEndPoint blob endpoint URL
 	 * @return SAS URL
 	 * @throws Exception throws exception
 	 */

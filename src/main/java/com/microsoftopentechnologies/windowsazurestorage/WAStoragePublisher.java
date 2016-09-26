@@ -419,11 +419,11 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep{
 		 * Validates storage account details.
 		 * 
 		 * @param was_storageAccName storage account name
-         * @param was_storageAccountKey storage account key
-         * @param was_blobEndPointURL blob endpoint URL
-         * @return FormValidation.ok form validation
-         * @throws IOException throws exception
-         * @throws ServletException throws exception
+         	 * @param was_storageAccountKey storage account key
+         	 * @param was_blobEndPointURL blob endpoint URL
+         	 * @return FormValidation.ok form validation
+         	 * @throws IOException throws exception
+         	 * @throws ServletException throws exception
 		 */
 		public FormValidation doCheckAccount(
 				@QueryParameter String was_storageAccName,
@@ -477,7 +477,7 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep{
 			} else {
 				return FormValidation.error(Messages
 						.WAStoragePublisher_container_name_req());
-            }
+            		}
 		}
 
 		public FormValidation doCheckPath(@QueryParameter String val) {

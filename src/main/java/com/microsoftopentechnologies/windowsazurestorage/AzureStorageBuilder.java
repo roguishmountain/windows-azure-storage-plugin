@@ -158,12 +158,12 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep{
 	}
 
 	/**
-     *
-     * @param run environment of build
-     * @param filePath filepath
-     * @param launcher env var for remote builds
-     * @param listener logging
-     */
+	 *
+	 * @param run environment of build
+	 * @param filePath filepath
+	 * @param launcher env var for remote builds
+	 * @param listener logging
+	 */
 	public void perform(Run<?,?> run, FilePath filePath, Launcher launcher, TaskListener listener) {
 		StorageAccountInfo strAcc = null;
 		try {
@@ -406,7 +406,7 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep{
 		 * Returns storage account object
 		 * 
 		 * @param storageAccountName storage account name
-         * @return storageAcc storage account
+         	 * @return storageAcc storage account
 		 */
 		public StorageAccountInfo getStorageAccount(String storageAccountName) {
 			if ((storageAccountName == null)
