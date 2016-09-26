@@ -268,9 +268,6 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep{
 		}
 		return storageAcc;
 	}
-	public String buildFilePath(String jobName, String buildNumber) {
-		return jobName + Utils.FWD_SLASH + buildNumber + Utils.FWD_SLASH;
-	}
 
 	public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath ws, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
 
@@ -541,13 +538,6 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep{
 			return Utils.getDefaultBlobURL();
 		}
 
-		/*
-		 * public List<String> getContainersList(String StorageAccountName) {
-		 * try { return WAStorageClient.getContainersList(
-		 * getStorageAccount(StorageAccountName), false); } catch (Exception e)
-		 * { e.printStackTrace(); return null; } }
-		 */
-
 		public ListBoxModel doFillStorageAccNameItems() {
 			ListBoxModel m = new ListBoxModel();
 			StorageAccountInfo[] StorageAccounts = getStorageAccounts();
@@ -559,17 +549,5 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep{
 			}
 			return m;
 		}
-
-		/*
-		 * public ComboBoxModel doFillContainerNameItems(
-		 * 
-		 * @QueryParameter String storageAccName) { ComboBoxModel m = new
-		 * ComboBoxModel();
-		 * 
-		 * List<String> containerList = getContainersList(storageAccName); if
-		 * (containerList != null) { for (String containerName :
-		 * getContainersList(storageAccName)) { m.add(containerName); } } return
-		 * m; }
-		 */
 	}
 }

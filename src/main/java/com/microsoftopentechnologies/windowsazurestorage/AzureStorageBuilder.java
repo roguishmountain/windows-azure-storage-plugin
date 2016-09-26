@@ -302,19 +302,6 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep{
 			load();
 		}
 
-		// Can be used in future for dynamic display in UI
-		/*
-		 * private List<String> getContainersList(String StorageAccountName) {
-		 * try { return WAStorageClient.getContainersList(
-		 * getStorageAccount(StorageAccountName), false); } catch (Exception e)
-		 * { e.printStackTrace(); return null; } }
-		 * 
-		 * private List<String> getBlobsList(String StorageAccountName, String
-		 * containerName) { try { return WAStorageClient.getContainerBlobList(
-		 * getStorageAccount(StorageAccountName), containerName); } catch
-		 * (Exception e) { e.printStackTrace(); return null; } }
-		 */
-
 		public ListBoxModel doFillStorageAccNameItems() {
 			ListBoxModel m = new ListBoxModel();
 			StorageAccountInfo[] StorageAccounts = getStorageAccounts();
@@ -336,37 +323,6 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep{
 			}
 			return projectList;
 		}
-
-		/*
-		 * public ComboBoxModel doFillContainerNameItems(
-		 * 
-		 * @QueryParameter String storageAccName) { ComboBoxModel m = new
-		 * ComboBoxModel();
-		 * 
-		 * List<String> containerList = getContainersList(storageAccName); if
-		 * (containerList != null) { m.addAll(containerList); } return m; }
-		 * 
-		 * public ComboBoxModel doFillBlobNameItems(
-		 * 
-		 * @QueryParameter String storageAccName,
-		 * 
-		 * @QueryParameter String containerName) { ComboBoxModel m = new
-		 * ComboBoxModel();
-		 * 
-		 * List<String> blobList = getBlobsList(storageAccName, containerName);
-		 * if (blobList != null) { m.addAll(blobList); } return m; }
-		 * 
-		 * public AutoCompletionCandidates
-		 * doAutoCompleteBlobName(@QueryParameter String storageAccName,
-		 * 
-		 * @QueryParameter String containerName) { List<String> blobList =
-		 * getBlobsList(storageAccName, containerName); AutoCompletionCandidates
-		 * autoCand = null;
-		 * 
-		 * if (blobList != null ) { autoCand = new AutoCompletionCandidates();
-		 * autoCand.add(blobList.toArray(new String[blobList.size()])); } return
-		 * autoCand; }
-		 */
 
 		/* public FormValidation doCheckIsDirectory(@QueryParameter String val) {
 			// If null or if file does not exists don't display any validation
@@ -432,8 +388,7 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep{
 		}
 
 		public DescriptorExtensionList<BuildSelector, Descriptor<BuildSelector>> getAvailableBuildSelectorList() {
-			DescriptorExtensionList<BuildSelector, Descriptor<BuildSelector>> list = DescriptorExtensionList.createDescriptorList(Jenkins.getInstance(), BuildSelector.class);
-			return list;
+			return DescriptorExtensionList.createDescriptorList(Jenkins.getInstance(), BuildSelector.class);
 		}
 		
 	}

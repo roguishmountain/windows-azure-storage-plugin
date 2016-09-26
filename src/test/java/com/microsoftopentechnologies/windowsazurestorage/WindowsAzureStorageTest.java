@@ -10,15 +10,6 @@ import com.microsoftopentechnologies.windowsazurestorage.helper.Utils;
 public class WindowsAzureStorageTest extends TestCase {
 
 	@Test
-	public void testUploadPath() throws Exception {
-		WAStoragePublisher wasp = new  WAStoragePublisher("storageAccName",
-			"filesPath", "excludeFilesPath", "containerName",
-			true, "virtualPath", false, true, true, false,
-			false, false, true);
-		assertEquals("testJob/1/", wasp.buildFilePath("testJob", "1"));
-	}
-
-	@Test
 	public void testContainerName() throws Exception {
 		
 		// checking for container name length of 3 characters
