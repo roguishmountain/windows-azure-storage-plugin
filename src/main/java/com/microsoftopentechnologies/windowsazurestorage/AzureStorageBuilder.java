@@ -229,7 +229,7 @@ public class AzureStorageBuilder extends Builder implements SimpleBuildStep{
 			final EnvVars envVars = run.getEnvironment(listener);
 			final AzureBlobAction action = source.getAction(AzureBlobAction.class);
 			List<AzureBlob> blob = action.getIndividualBlobs();
-			if (action.getZipArchiveBlob() != null) {
+			if (action.getZipArchiveBlob() != null && includeArchiveZips) {
 				blob.addAll(Arrays.asList(action.getZipArchiveBlob()));
 			}
 
