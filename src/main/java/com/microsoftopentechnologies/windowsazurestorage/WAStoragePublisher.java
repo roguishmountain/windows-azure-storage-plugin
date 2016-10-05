@@ -277,13 +277,12 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep{
 
 		// Resolve container name
 		String expContainerName = Util.replaceMacro(containerName, envVars);
-		if (!Utils.isNullOrEmpty(expContainerName)) {
-			expContainerName = Utils.FWD_SLASH + expContainerName.trim().toLowerCase(
-					Locale.ENGLISH) + Utils.FWD_SLASH;
-		} else {
-			expContainerName = expContainerName.trim().toLowerCase(
-						Locale.ENGLISH) + Utils.FWD_SLASH;
-		}
+
+                if (!validateData(run, listener, strAcc, expContainerName)) {
+                        throw new IOException("Plugin can not continue, until previous errors are addressed");
+                }
+
+		expContainerName = expContainerName.trim().toLowerCase(Locale.ENGLISH);
 
 		// Resolve file path
 		String expFP = Util.replaceMacro(filesPath, envVars);
@@ -305,8 +304,6 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep{
 			expVP = expVP.trim() + Utils.FWD_SLASH;
 		}
 
-		validateData(run, listener, strAcc, expContainerName);
-
 		try {
 			List<AzureBlob> individualBlobs = new ArrayList<AzureBlob>();
 			List<AzureBlob> archiveBlobs = new ArrayList<AzureBlob>();
@@ -321,7 +318,7 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep{
 				listener.getLogger().println(
 						Messages.WAStoragePublisher_nofiles_uploaded());
 				if (!doNotFailIfArchivingReturnsNothing) {
-					run.setResult(Result.UNSTABLE);
+					throw new IOException(Messages.WAStoragePublisher_nofiles_uploaded());
 				}
 			} else {
 				AzureBlob zipArchiveBlob = null;
@@ -336,38 +333,48 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep{
 		} catch (Exception e) {
 			e.printStackTrace(listener.error(Messages
 					.WAStoragePublisher_uploaded_err(strAcc.getStorageAccName())));
-			run.setResult(Result.UNSTABLE);
+			throw new IOException(Messages.WAStoragePublisher_uploaded_err(strAcc.getStorageAccName()));
 		}
 	}
 
-	private void validateData(Run<?, ?> run,
-			TaskListener listener, StorageAccountInfo storageAccount,
-			String expContainerName) throws IOException, InterruptedException {
+	private boolean validateData(Run<?, ?> run,
+			TaskListener listener, StorageAccountInfo storageAccount, String expContainerName) throws IOException, InterruptedException {
 
 		// No need to upload artifacts if build failed and the job is
 		// set to not upload on success.
 		if ( (run.getResult() == Result.FAILURE || run.getResult() == Result.ABORTED) && uploadArtifactsOnlyIfSuccessful) {
 			listener.getLogger().println(
 					Messages.WAStoragePublisher_build_failed_err());
+                        return false;
 		}
 
 		if (storageAccount == null) {
 			listener.getLogger().println(
 					Messages.WAStoragePublisher_storage_account_err());
-			run.setResult(Result.UNSTABLE);
+			return false;
 		}
 
 		// Validate files path
 		if (Utils.isNullOrEmpty(filesPath)) {
 			listener.getLogger().println(
 					Messages.WAStoragePublisher_filepath_err());
-			run.setResult(Result.UNSTABLE);
+			return false;
 		}
 
 		if (getArtifactUploadType() == UploadType.INVALID) {
 			listener.getLogger().println(
 					Messages.WAStoragePublisher_uploadtype_invalid());
-			run.setResult(Result.UNSTABLE);
+			return false;
+		}
+
+		if (Utils.isNullOrEmpty(expContainerName)) {
+			listener.getLogger().println("Container name is null or empty");
+			return false;
+		}
+
+		if (!Utils.validateContainerName(expContainerName)) {
+			listener.getLogger().println("Container name contains invalid characters");
+			return false;
 		}
 
 		// Check if storage account credentials are valid
@@ -384,8 +391,9 @@ public class WAStoragePublisher extends Recorder implements SimpleBuildStep{
 			listener.getLogger().println(
 					"Blob end point url --->"
 							+ storageAccount.getBlobEndPointURL() + "<----");
-			run.setResult(Result.UNSTABLE);
+			return false;
 		}
+        return true;
 	}
 
 	@Override
